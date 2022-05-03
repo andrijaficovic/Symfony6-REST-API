@@ -22,6 +22,14 @@ class Address
     #[ORM\Column(type: 'integer')]
     private $postalCode;
 
+    #[ORM\OneToOne(targetEntity: City::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private $city;
+
+    #[ORM\OneToOne(targetEntity: Country::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private $country;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +67,30 @@ class Address
     public function setPostalCode(int $postalCode): self
     {
         $this->postalCode = $postalCode;
+
+        return $this;
+    }
+
+    public function getCity(): ?City
+    {
+        return $this->city;
+    }
+
+    public function setCity(City $city): self
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getCountry(): ?Country
+    {
+        return $this->country;
+    }
+
+    public function setCountry(Country $country): self
+    {
+        $this->country = $country;
 
         return $this;
     }
