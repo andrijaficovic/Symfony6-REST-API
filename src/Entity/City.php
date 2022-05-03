@@ -16,6 +16,10 @@ class City
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
+    #[ORM\OneToOne(targetEntity: Country::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private $country;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -29,6 +33,18 @@ class City
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getCountry(): ?Country
+    {
+        return $this->country;
+    }
+
+    public function setCountry(Country $country): self
+    {
+        $this->country = $country;
 
         return $this;
     }
