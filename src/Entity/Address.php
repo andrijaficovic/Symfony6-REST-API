@@ -22,16 +22,15 @@ class Address
     #[ORM\Column(type: 'integer')]
     private $postalCode;
 
-    #[ORM\OneToOne(targetEntity: City::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private $city;
-
-    #[ORM\OneToOne(targetEntity: Country::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private $country;
 
     #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'addresses')]
     private $client;
+
+    #[ORM\ManyToOne(targetEntity: City::class, inversedBy: 'addresses')]
+    private $city;
+
+    #[ORM\ManyToOne(targetEntity: Country::class)]
+    private $country;
 
     public function getId(): ?int
     {
@@ -74,12 +73,25 @@ class Address
         return $this;
     }
 
+
+    public function getClient(): ?Client
+    {
+        return $this->client;
+    }
+
+    public function setClient(?Client $client): self
+    {
+        $this->client = $client;
+
+        return $this;
+    }
+
     public function getCity(): ?City
     {
         return $this->city;
     }
 
-    public function setCity(City $city): self
+    public function setCity(?City $city): self
     {
         $this->city = $city;
 
@@ -91,21 +103,9 @@ class Address
         return $this->country;
     }
 
-    public function setCountry(Country $country): self
+    public function setCountry(?Country $country): self
     {
         $this->country = $country;
-
-        return $this;
-    }
-
-    public function getClient(): ?Client
-    {
-        return $this->client;
-    }
-
-    public function setClient(?Client $client): self
-    {
-        $this->client = $client;
 
         return $this;
     }

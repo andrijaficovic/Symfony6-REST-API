@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Address;
 use App\Entity\City;
 use App\Entity\Client;
 use App\Entity\Contact;
@@ -32,6 +33,18 @@ class AppFixtures extends Fixture
                 $contact->setClient($client);
                 $manager->persist($contact);
             }
+
+//            for($k=1; $k<=2; $k++)
+//            {
+//                $address = new Address();
+//                $address->setClient($client);
+//                $address->setCountry(new Country());
+//                $address->setCity(new City());
+//                $address->setPostalCode(123 . $k);
+//                $address->setStreet('Street ' . $k);
+//                $address->setStreetNumber('abc ' . $k);
+//                $manager->persist($address);
+//            }
             $manager->persist($client);
         }
         $manager->flush();
