@@ -47,6 +47,17 @@ class CountryRepository extends ServiceEntityRepository
         }
     }
 
+    public function findWithCities($id):?Country
+    {
+        return $this->createQueryBuilder('c')
+            ->innerJoin('c.cities', 'city')
+            ->addSelect('city')
+            ->andWhere('c.id=:id')
+            ->setParameter('id',$id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     // /**
     //  * @return Country[] Returns an array of Country objects
     //  */

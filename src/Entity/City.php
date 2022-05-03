@@ -17,8 +17,8 @@ class City
     private $name;
 
     #[ORM\ManyToOne(targetEntity: Country::class, inversedBy: 'cities')]
+    #[ORM\JoinColumn(nullable: false)]
     private $country;
-
 
     public function getId(): ?int
     {

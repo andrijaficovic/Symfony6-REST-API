@@ -18,13 +18,14 @@ class Country
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
-    #[ORM\OneToMany(mappedBy: 'country', targetEntity: City::class)]
+    #[ORM\OneToMany(mappedBy: 'country', targetEntity: City::class, orphanRemoval: true)]
     private $cities;
 
     public function __construct()
     {
         $this->cities = new ArrayCollection();
     }
+
 
     public function getId(): ?int
     {
@@ -72,4 +73,5 @@ class Country
 
         return $this;
     }
+
 }
