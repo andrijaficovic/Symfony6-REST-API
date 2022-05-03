@@ -31,12 +31,12 @@ class Client
     private $addresses;
 
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Contact::class)]
-    private $contact;
+    private $contacts;
 
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
-        $this->contact = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -125,15 +125,15 @@ class Client
     /**
      * @return Collection<int, Contact>
      */
-    public function getContact(): Collection
+    public function getContacts(): Collection
     {
-        return $this->contact;
+        return $this->contacts;
     }
 
     public function addContact(Contact $contact): self
     {
-        if (!$this->contact->contains($contact)) {
-            $this->contact[] = $contact;
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts[] = $contact;
             $contact->setClient($this);
         }
 
@@ -142,7 +142,7 @@ class Client
 
     public function removeContact(Contact $contact): self
     {
-        if ($this->contact->removeElement($contact)) {
+        if ($this->contacts->removeElement($contact)) {
             // set the owning side to null (unless already changed)
             if ($contact->getClient() === $this) {
                 $contact->setClient(null);
@@ -151,4 +151,5 @@ class Client
 
         return $this;
     }
+
 }
