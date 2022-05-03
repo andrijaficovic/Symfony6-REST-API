@@ -2,15 +2,10 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
-class CountryController extends AbstractController
+class CountryController extends AbstractFOSRestController
 {
-    #[Route('/country', name: 'app_country')]
-    public function index(): Response
-    {
-        return $this->json('cao svima');
-    }
+
 }
