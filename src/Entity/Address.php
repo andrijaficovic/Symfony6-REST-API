@@ -4,22 +4,39 @@ namespace App\Entity;
 
 use App\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
+/**
+ * @ExclusionPolicy("all")
+ */
 class Address
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    /**
+     * @Expose
+     */
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Expose
+     */
     private $street;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Expose
+     */
     private $streetNumber;
 
     #[ORM\Column(type: 'integer')]
+    /**
+     * @Expose
+     */
     private $postalCode;
 
 
@@ -27,9 +44,15 @@ class Address
     private $client;
 
     #[ORM\ManyToOne(targetEntity: City::class, inversedBy: 'addresses')]
+    /**
+     * @Expose
+     */
     private $city;
 
     #[ORM\ManyToOne(targetEntity: Country::class)]
+    /**
+     * @Expose
+     */
     private $country;
 
     public function getId(): ?int

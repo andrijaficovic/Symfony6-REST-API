@@ -4,25 +4,45 @@ namespace App\Entity;
 
 use App\Repository\ContactRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
+/**
+ * @ExclusionPolicy("all")
+ */
 class Contact
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    /**
+     * @Expose
+     */
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Expose
+     */
     private $name;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Expose
+     */
     private $surname;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Expose
+     */
     private $phoneNumber;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Expose
+     */
     private $email;
 
     #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'contacts')]

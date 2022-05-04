@@ -6,16 +6,27 @@ use App\Repository\CountryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
 
 #[ORM\Entity(repositoryClass: CountryRepository::class)]
+/**
+ * @ExclusionPolicy("all")
+ */
 class Country
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    /**
+     * @Expose
+     */
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Expose
+     */
     private $name;
 
     #[ORM\OneToMany(mappedBy: 'country', targetEntity: City::class, orphanRemoval: true)]
