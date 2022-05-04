@@ -47,6 +47,10 @@ class CityController extends AbstractFOSRestController
     public function getCitiesByCountryAction($id)
     {
         $country = $this->em->getRepository(Country::class)->find($id);
+        if($country === null)
+        {
+            return new View('This country does not exist', Response::HTTP_NOT_FOUND);
+        }
         $cities = $country->getCities();
         if($cities === null)
         {
@@ -62,10 +66,12 @@ class CityController extends AbstractFOSRestController
         $name = $data['name'];
         $countryId = $data['country']['id'];
         $country = $this->em->getRepository(Country::class)->find($countryId);
-
-        if(empty($name) || $country === null)
+        if(empty($name))
         {
             return new View('It is impossible to pass null data', Response::HTTP_NOT_ACCEPTABLE);
+        }elseif ($country === null)
+        {
+            return new View('This country does not exist', Response::HTTP_NOT_ACCEPTABLE);
         }
 
         $city = new City();
@@ -91,7 +97,6 @@ class CityController extends AbstractFOSRestController
         $name = $data['name'];
         $countryId = $data['country']['id'];
         $country = $this->em->getRepository(Country::class)->find($countryId);
-
 
         $city->setName($name);
         $city->setCountry($country);

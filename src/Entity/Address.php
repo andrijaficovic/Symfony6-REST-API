@@ -40,9 +40,6 @@ class Address
     private $postalCode;
 
 
-    #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'addresses')]
-    private $client;
-
     #[ORM\ManyToOne(targetEntity: City::class, inversedBy: 'addresses')]
     /**
      * @Expose
@@ -54,6 +51,10 @@ class Address
      * @Expose
      */
     private $country;
+
+    #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'addresses')]
+    #[ORM\JoinColumn(nullable: false)]
+    private $client;
 
     public function getId(): ?int
     {
@@ -97,18 +98,6 @@ class Address
     }
 
 
-    public function getClient(): ?Client
-    {
-        return $this->client;
-    }
-
-    public function setClient(?Client $client): self
-    {
-        $this->client = $client;
-
-        return $this;
-    }
-
     public function getCity(): ?City
     {
         return $this->city;
@@ -129,6 +118,18 @@ class Address
     public function setCountry(?Country $country): self
     {
         $this->country = $country;
+
+        return $this;
+    }
+
+    public function getClient(): ?Client
+    {
+        return $this->client;
+    }
+
+    public function setClient(?Client $client): self
+    {
+        $this->client = $client;
 
         return $this;
     }

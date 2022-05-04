@@ -46,7 +46,9 @@ class Contact
     private $email;
 
     #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'contacts')]
+    #[ORM\JoinColumn(nullable: false)]
     private $client;
+
 
     public function getId(): ?int
     {

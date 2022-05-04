@@ -37,7 +37,7 @@ class CountryController extends AbstractFOSRestController
         $country = $this->em->getRepository(Country::class)->find($id);
         if($country === null)
         {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+            return new View('The requested country does not exist', Response::HTTP_NOT_FOUND);
         }
 
         return $this->view($country, Response::HTTP_OK);
@@ -47,6 +47,10 @@ class CountryController extends AbstractFOSRestController
     public function getCitiesByCountryAction($id)
     {
         $country = $this->em->getRepository(Country::class)->find($id);
+        if($country === null)
+        {
+            return new View('The requested country does not exist', Response::HTTP_NOT_FOUND);
+        }
         $cities = $country->getCities();
         if($cities === null)
         {
@@ -89,7 +93,7 @@ class CountryController extends AbstractFOSRestController
         $country = $this->em->getRepository(Country::class)->find($id);
         if($country === null)
         {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+            return new View('The requested country does not exist', Response::HTTP_NOT_FOUND);
         }
         $data = json_decode($request->getContent(), true);
         $name = $data['name'];
