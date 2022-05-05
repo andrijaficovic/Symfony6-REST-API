@@ -134,4 +134,39 @@ address_delete:
     requirements:
         addressId: '\d+'
 
+#CLIENTS
+
+clients_list:
+    path: /api/clients
+    controller: App\Controller\ClientController::indexAction
+    methods: [GET]
+
+client_show:
+    path: /api/clients/{clientId}
+    controller: App\Controller\ClientController::showAction
+    methods: [GET]
+    requirements:
+        clientId: '\d+'
+
+client_create:
+    path: /api/clients
+    controller: App\Controller\ClientController::createAction
+    methods: [POST]
+
+client_update:
+    path: /api/clients/{clientId}
+    controller: App\Controller\ClientController::updateAction
+    methods: [PUT]
+    requirements:
+        clientId: '\d+'
+
+client_delete:
+    path: /api/clients/{clientId}
+    controller: App\Controller\ClientController::deleteAction
+    methods: [DELETE]
+    requirements:
+        clientId: '\d+'
+
+
+
 
