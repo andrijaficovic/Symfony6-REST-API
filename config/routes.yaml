@@ -69,3 +69,35 @@ city_delete:
     methods: [DELETE]
     requirements:
         cityId: '\d+'
+
+#CONTACTS
+contacts_list:
+    path: /api/contacts
+    controller: App\Controller\ContactController::indexAction
+    methods: [GET]
+
+contact_show:
+    path: /api/contacts/{contactId}
+    controller: App\Controller\ContactController::showAction
+    methods: [GET]
+    requirements:
+        contactId: '\d+'
+
+contact_create:
+    path: /api/contacts
+    controller: App\Controller\ContactController::createAction
+    methods: [POST]
+
+contact_update:
+    path: /api/contacts/{contactId}
+    controller: App\Controller\ContactController::updateAction
+    methods: [PUT]
+    requirements:
+        contactId: '\d+'
+
+contact_delete:
+    path: /api/contacts/{contactId}
+    controller: App\Controller\ContactController::deleteAction
+    methods: [DELETE]
+    requirements:
+        contactId: '\d+'

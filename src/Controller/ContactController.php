@@ -8,8 +8,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ContactController extends AbstractFOSRestController
 {
@@ -20,56 +22,62 @@ class ContactController extends AbstractFOSRestController
         $this->em = $em;
     }
 
-    #[Rest\Get('/api/contacts', name: 'get_contacts')]
-    public function getContactsAction()
+    //Retrieve all contact
+    public function indexAction()
     {
         $contacts = $this->em->getRepository(Contact::class)->findAll();
-        if($contacts === null)
+        if(!$contacts)
         {
-            return new View('There are no contacts exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Contacts not found');
         }
-
-        return $this->view($contacts, Response::HTTP_OK);
+        return $this->handleView($this->view($contacts, Response::HTTP_OK));
     }
 
-    #[Rest\Get('/api/contacts/{id}', name: 'get_contact')]
-    public function getContactAction($id)
+    //retrieve contact by id
+    public function showAction(Request $request)
     {
-        $contact = $this->em->getRepository(Contact::class)->find($id);
-        if($contact === null)
+        $contactId = $request->get('contactId');
+        $contact = $this->em->getRepository(Contact::class)->find($contactId);
+        if(!$contact)
         {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Requested contact does not exist');
         }
 
-        return $this->view($contact, Response::HTTP_OK);
+        return $this->handleView($this->view($contact, Response::HTTP_OK));
     }
 
-    #[Rest\Post('/api/contacts', name: 'post_contact')]
-    public function postContactAction(Request $request)
+    //create contact record
+    public function createAction(Request $request)
     {
-        $contact = new Contact();
         $data = json_decode($request->getContent(), true);
         $name = $data['name'];
         $surname = $data['surname'];
         $phoneNumber = $data['phone_number'];
         $email = $data['email'];
-        $clientId = $data['client']['id'];
-        $client = $this->em->getRepository(Client::class)->find($clientId);
-    if(empty($name) || empty($surname) || empty($phoneNumber) || empty($email) || $client === null)
-    {
-        return new View('It is impossible to pass null data', Response::HTTP_NOT_ACCEPTABLE);
-    }
+        $clientId = $data['client_id'];
 
-        $contact->setName($name);
-        $contact->setSurname($surname);
-        $contact->setPhoneNumber($phoneNumber);
-        $contact->setEmail($email);
-        $contact->setClient($client);
-        $this->em->persist($contact);
+        $client = $this->em->getRepository(Client::class)->find($clientId);
+
+        if(!$client)
+        {
+            throw new NotFoundHttpException('Requested client does not exist');
+        }
+
+        //check if data is set
+        if(empty($name) || empty($surname) || empty($phoneNumber) || empty($email) || empty($clientId))
+        {
+            throw new BadRequestException('Fields can not be blank');
+        }
+
+
+        //inserting record in database
+        $city = new City();
+        $city->setName($name);
+        $city->setCountry($country);
+        $this->em->persist($city);
         $this->em->flush();
 
-
-        return $this->view('The contact was successfully created', Response::HTTP_CREATED);
+        return $this->handleView($this->view($city, Response::HTTP_CREATED));
     }
 
     #[Rest\Put('/api/contacts/{id}', name: 'update_contact')]
