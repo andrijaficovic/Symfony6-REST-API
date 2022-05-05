@@ -69,34 +69,8 @@ class ContactController extends AbstractFOSRestController
             throw new BadRequestException('Fields can not be blank');
         }
 
-
         //inserting record in database
-        $city = new City();
-        $city->setName($name);
-        $city->setCountry($country);
-        $this->em->persist($city);
-        $this->em->flush();
-
-        return $this->handleView($this->view($city, Response::HTTP_CREATED));
-    }
-
-    #[Rest\Put('/api/contacts/{id}', name: 'update_contact')]
-    public function updateContactAction($id, Request $request)
-    {
-        $data = json_decode($request->getContent(), true);
-        $name = $data['name'];
-        $surname = $data['surname'];
-        $phoneNumber = $data['phone_number'];
-        $email = $data['email'];
-        $clientId = $data['client']['id'];
-        $client = $this->em->getRepository(Client::class)->find($clientId);
-
-        if(empty($name) || empty($surname) || empty($phoneNumber) || empty($email) || $client === null)
-        {
-            return new View('It is impossible to pass null data', Response::HTTP_NOT_ACCEPTABLE);
-        }
-
-        $contact = $this->em->getRepository(Contact::class)->find($id);
+        $contact = new Contact();
         $contact->setName($name);
         $contact->setSurname($surname);
         $contact->setPhoneNumber($phoneNumber);
@@ -105,22 +79,65 @@ class ContactController extends AbstractFOSRestController
         $this->em->persist($contact);
         $this->em->flush();
 
-        return $this->view('Contact updated successfully', Response::HTTP_OK);
+        return $this->handleView($this->view($contact, Response::HTTP_CREATED));
     }
 
-    #[Rest\Delete('/api/contacts/{id}', name: 'delete_contact')]
-    public function deleteContactAction($id)
+    //update contact record
+    public function updateAction(Request $request)
     {
-        $contact = $this->em->getRepository(Contact::class)->find($id);
+        $contactId = $request->get('contactId');
+        $contact = $this->em->getRepository(Contact::class)->find($contactId);
 
-        if($contact === null)
+        if(!$contact)
         {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Requested contact does not exist');
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $name = $data['name'];
+        $surname = $data['surname'];
+        $phoneNumber = $data['phone_number'];
+        $email = $data['email'];
+        $clientId = $data['client_id'];
+
+        $client = $this->em->getRepository(Client::class)->find($clientId);
+        if(!$client)
+        {
+            throw new NotFoundHttpException('Requested client does not exist');
+        }
+
+        //check if data is set
+        if(empty($name) || empty($surname) || empty($phoneNumber) || empty($email) || empty($clientId))
+        {
+            throw new BadRequestException('Fields can not be blank');
+        }
+
+        //inserting record in database
+        $contact = new Contact();
+        $contact->setName($name);
+        $contact->setSurname($surname);
+        $contact->setPhoneNumber($phoneNumber);
+        $contact->setEmail($email);
+        $contact->setClient($client);
+        $this->em->persist($contact);
+        $this->em->flush();
+
+        return $this->handleView($this->view('Contact successfully updated', Response::HTTP_OK));
+    }
+
+    //Delete contact record
+    public function deleteAction(Request $request)
+    {
+        $contactId = $request->get('contactId');
+        $contact = $this->em->getRepository(Contact::class)->find($contactId);
+        if(!$contact)
+        {
+            throw new NotFoundHttpException('Requested contact does not exist');
         }
 
         $this->em->remove($contact);
         $this->em->flush();
 
-        return $this->view('Deleted successfully', Response::HTTP_OK);
+        return $this->handleView($this->view('Contact successfully deleted', Response::HTTP_OK));
     }
 }
