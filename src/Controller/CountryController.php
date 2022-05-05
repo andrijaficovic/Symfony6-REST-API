@@ -3,15 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Country;
-use App\Repository\CountryRepository;
+use App\Form\CountryType;
 use Doctrine\ORM\EntityManagerInterface;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class CountryController extends AbstractFOSRestController
+class CountryController extends AbstractApiController
 {
     private $em;
 
@@ -21,102 +19,88 @@ class CountryController extends AbstractFOSRestController
     }
 
     //Retrieve all countries
-    public function indexAction(): View
+    public function indexAction()
     {
         $countries = $this->em->getRepository(Country::class)->findAll();
-        if($countries === null)
+        if(!$countries)
         {
-            return new View('There are no countries exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Countries not found');
         }
-        return $this->view($countries, Response::HTTP_OK);
+        return $this->respond($countries, Response::HTTP_OK);
     }
 
     //Retrieve country by id
-    public function uniqueIndexAction($countryId):View
+    public function showAction(Request $request)
     {
+        $countryId = $request->get('countryId');
         $country = $this->em->getRepository(Country::class)->find($countryId);
         if($country === null)
         {
-            return new View('The requested country does not exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Requested country does not exist');
         }
 
-        return $this->view($country, Response::HTTP_OK);
+        return $this->respond($country, Response::HTTP_OK);
     }
 
-    #[Rest\Get('/api/countries/{id}/cities', name: 'get_cities_by_country')]
-    public function getCitiesByCountryAction($id)
+    //create country record
+    public function createAction(Request $request)
     {
-        $country = $this->em->getRepository(Country::class)->find($id);
-        if($country === null)
-        {
-            return new View('The requested country does not exist', Response::HTTP_NOT_FOUND);
-        }
-        $cities = $country->getCities();
-        if($cities === null)
-        {
-            return new View('This country still has no cities', Response::HTTP_NOT_FOUND);
-        }
-        return $this->view($cities, Response::HTTP_OK);
-    }
+        $form = $this->buildForm(CountryType::class);
+        $form->handleRequest($request);
 
-    #[Rest\Post('/api/countries', name: 'post_country')]
-    public function createCountryAction(Request $request)
-    {
-        $countries = $this->em->getRepository(Country::class)->findAll();
-        $country = new Country();
-        $data = json_decode($request->getContent(), true);
-        $name = $data['name'];
-        //validacija da li je unutar json body strukture poslata null vrednost za name
-        if(empty($name))
+        if(!$form->isSubmitted() || !$form->isValid())
         {
-            return new View('It is impossible to pass null data', Response::HTTP_NOT_ACCEPTABLE);
+            return $this->respond($form, Response::HTTP_BAD_REQUEST);
         }
 
-        //provera da li country vec postoji u bazi podataka
-        foreach ($countries as $c){
-            if($c->getName() === $name)
-            {
-                return new View('Country already exists', Response::HTTP_CONFLICT);
-            }
-        }
-
-        $country->setName($name);
+        $country = $form->getData();
         $this->em->persist($country);
         $this->em->flush();
 
-        return $this->view('The country was successfully created', Response::HTTP_CREATED);
+        return $this->respond($country, Response::HTTP_CREATED);
     }
 
-    #[Rest\Put('/api/countries/{id}', name: 'put_country')]
-    public function updateCountryAction($id, Request $request)
+    //update country record
+    public function updateAction(Request $request)
     {
-        $country = $this->em->getRepository(Country::class)->find($id);
-        if($country === null)
-        {
-            return new View('The requested country does not exist', Response::HTTP_NOT_FOUND);
-        }
-        $data = json_decode($request->getContent(), true);
-        $name = $data['name'];
+        $countryId = $request->get('countryId');
+        $country = $this->em->getRepository(Country::class)->find($countryId);
 
-        $country->setName($name);
+        if(!$country)
+        {
+            throw new NotFoundHttpException('Requested country does not exist');
+        }
+
+        $form = $this->buildForm(CountryType::class, $country, [
+            'method' => $request->getMethod()
+        ]);
+        $form->handleRequest($request);
+
+        if(!$form->isSubmitted() || !$form->isValid())
+        {
+            return $this->respond($form, Response::HTTP_BAD_REQUEST);
+        }
+
+        $country = $form->getData();
         $this->em->persist($country);
         $this->em->flush();
 
-        return $this->view('Country updated successfully', Response::HTTP_OK);
+        return $this->respond($country, Response::HTTP_CREATED);
     }
 
-    #[Rest\Delete('/api/countries/{id}', name: 'delete_country')]
-    public function deleteCountryAction($id)
+    //Delete country record
+    public function deleteAction(Request $request)
     {
-        $country = $this->em->getRepository(Country::class)->find($id);
-        if($country === null)
+        $countryId = $request->get('countryId');
+        $country = $this->em->getRepository(Country::class)->find($countryId);
+        if(!$country)
         {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Requested country does not exist');
         }
 
         $this->em->remove($country);
         $this->em->flush();
 
-        return $this->view('Deleted successfully', Response::HTTP_OK);
+        return $this->respond('Requested country successfully deleted',Response::HTTP_OK);
     }
 }

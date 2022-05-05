@@ -13,10 +13,12 @@ countries_list:
 
 country_show:
     path: /api/countries/{countryId}
-    controller: App\Controller\CountryController::uniqueIndexAction
+    controller: App\Controller\CountryController::showAction
     methods: [GET]
+    requirements:
+        countryId: '\d+'
 
-countries_create:
+country_create:
     path: /api/countries
     controller: App\Controller\CountryController::createAction
     methods: [POST]
@@ -25,4 +27,13 @@ country_update:
     path: /api/countries/{countryId}
     controller: App\Controller\CountryController::updateAction
     methods: [PUT]
+    requirements:
+        countryId: '\d+'
+
+country_delete:
+    path: /api/countries/{countryId}
+    controller: App\Controller\CountryController::deleteAction
+    methods: [DELETE]
+    requirements:
+        countryId: '\d+'
 
