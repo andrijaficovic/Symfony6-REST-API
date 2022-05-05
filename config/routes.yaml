@@ -5,3 +5,24 @@ controllers:
 kernel:
     resource: ../src/Kernel.php
     type: annotation
+
+countries_list:
+    path: /api/countries
+    controller: App\Controller\CountryController::indexAction
+    methods: [GET]
+
+country_show:
+    path: /api/countries/{countryId}
+    controller: App\Controller\CountryController::uniqueIndexAction
+    methods: [GET]
+
+countries_create:
+    path: /api/countries
+    controller: App\Controller\CountryController::createAction
+    methods: [POST]
+
+country_update:
+    path: /api/countries/{countryId}
+    controller: App\Controller\CountryController::updateAction
+    methods: [PUT]
+

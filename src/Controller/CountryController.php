@@ -20,8 +20,8 @@ class CountryController extends AbstractFOSRestController
         $this->em = $em;
     }
 
-    #[Rest\Get('/api/countries', name: 'get_countries')]
-    public function getCountriesAction()
+    //Retrieve all countries
+    public function indexAction(): View
     {
         $countries = $this->em->getRepository(Country::class)->findAll();
         if($countries === null)
@@ -31,10 +31,10 @@ class CountryController extends AbstractFOSRestController
         return $this->view($countries, Response::HTTP_OK);
     }
 
-    #[Rest\Get('/api/countries/{id}', name: 'get_country')]
-    public function getCountryAction($id)
+    //Retrieve country by id
+    public function uniqueIndexAction($countryId):View
     {
-        $country = $this->em->getRepository(Country::class)->find($id);
+        $country = $this->em->getRepository(Country::class)->find($countryId);
         if($country === null)
         {
             return new View('The requested country does not exist', Response::HTTP_NOT_FOUND);
