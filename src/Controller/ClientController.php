@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Address;
 use App\Entity\Client;
 use App\Entity\Contact;
+use App\Form\ClientType;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -46,60 +47,6 @@ class ClientController extends AbstractFOSRestController
        return $this->view($client,Response::HTTP_OK);
    }
 
-//   #[Rest\Post('/api/clients')]
-//   public function postClientAction(Request $request)
-//   {
-//       $data = json_decode($request->getContent(), true);
-//       $name = $data['name'];
-//       $companyRegistrationNumber = $data['company_registration_number'];
-//       $tin = $data['tin'];
-//       $website = $data['website'];
-//       $numAddr = count($data['addresses']);
-//       $numCont = count($data['contacts']);
-//       $addressesIds = [];
-//       $contactsIds = [];
-//       if($numAddr === 1)
-//       {
-//           $addressesIds = $data['addresses']['id'];
-//       }else{
-//           foreach ($data['addresses'] as $address)
-//           {
-//               array_push($addressesIds, $address['id']);
-//           }
-//       }
-//
-//       if($numCont === 1)
-//       {
-//           $contactsIds = $data['contacts']['id'];
-//       }else{
-//           foreach ($data['contacts'] as $contact)
-//           {
-//               array_push($contactsIds, $contact['id']);
-//           }
-//       }
-//
-//       $client = new Client();
-//       $client->setName($name);
-//       $client->setWebsite($website);
-//       $client->setTin($tin);
-//       $client->setCompanyRegistrationNumber($companyRegistrationNumber);
-//       foreach ($addressesIds as $addressId)
-//       {
-//           $findAddress = $this->em->getRepository(Address::class)->find($addressId);
-//           $client->addAddress($findAddress);
-//       }
-//
-//       foreach ($contactsIds as $contactId)
-//       {
-//           $findContact = $this->em->getRepository(Contact::class)->find($contactId);
-//           $client->addContact($findContact);
-//       }
-//
-//   }
-
-    #[Rest\Post('/api/clients')]
-    public function createClientsAction(Request $request)
-    {
-
-    }
+    /*ODGLEDAJ VIDEO NA YT I KREIRAJ POST I PUT POMOCU FORMI,
+    I NAPRAVI ABSTRACTAPICONTROLLER*/
 }
