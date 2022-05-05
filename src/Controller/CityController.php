@@ -7,9 +7,11 @@ use App\Entity\Country;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CityController extends AbstractFOSRestController
 {
@@ -20,105 +22,109 @@ class CityController extends AbstractFOSRestController
         $this->em = $em;
     }
 
-    #[Rest\Get('/api/cities', name: 'get_cities')]
-    public function getCitiesAction()
+    //Retrieve all cities
+    public function indexAction()
     {
         $cities = $this->em->getRepository(City::class)->findAll();
-        if($cities === null)
+        if(!$cities)
         {
-            return new View('There are no cities exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Cities not found');
         }
-        return $this->view($cities, Response::HTTP_OK);
+        return $this->handleView($this->view($cities, Response::HTTP_OK));
     }
 
-    #[Rest\Get('/api/cities/{id}', name: 'get_city')]
-    public function getCityAction($id)
+    //retrieve city by id
+    public function showAction(Request $request)
     {
-        $city = $this->em->getRepository(City::class)->find($id);
-        if($city === null)
+        $cityId = $request->get('cityId');
+        $city = $this->em->getRepository(City::class)->find($cityId);
+        if(!$city)
         {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Requested city does not exist');
         }
 
-        return $this->view($city, Response::HTTP_OK);
+        return $this->handleView($this->view($city, Response::HTTP_OK));
     }
 
-    #[Rest\Get('/api/cities/country/{id}', name: 'get_cities_by_country2')]
-    public function getCitiesByCountryAction($id)
-    {
-        $country = $this->em->getRepository(Country::class)->find($id);
-        if($country === null)
-        {
-            return new View('This country does not exist', Response::HTTP_NOT_FOUND);
-        }
-        $cities = $country->getCities();
-        if($cities === null)
-        {
-            return new View('This country still has no cities', Response::HTTP_NOT_FOUND);
-        }
-        return $this->view($cities, Response::HTTP_OK);
-    }
-
-    #[Rest\Post('/api/cities', name: 'post_city')]
-    public function createCityAction(Request $request)
+    //create city record
+    public function createAction(Request $request)
     {
         $data = json_decode($request->getContent(), true);
         $name = $data['name'];
-        $countryId = $data['country']['id'];
+        $countryId = $data['country_id'];
         $country = $this->em->getRepository(Country::class)->find($countryId);
-        if(empty($name))
+
+        //check if name is set
+        if(empty($name) || empty($countryId))
         {
-            return new View('It is impossible to pass null data', Response::HTTP_NOT_ACCEPTABLE);
-        }elseif ($country === null)
-        {
-            return new View('This country does not exist', Response::HTTP_NOT_ACCEPTABLE);
+            throw new BadRequestException('Fields can not be blank');
         }
 
+        //Check if there are same cities
+        $cities = $this->em->getRepository(City::class)->findAll();
+        foreach ($cities as $c)
+        {
+            if($country->getId() === $countryId)
+            {
+                if(strtolower($c->getName()) === strtolower($name))
+                {
+                    throw new BadRequestException('That city already exists');
+                }
+            }
+        }
+
+        //inserting record in database
         $city = new City();
         $city->setName($name);
         $city->setCountry($country);
-
-
         $this->em->persist($city);
         $this->em->flush();
 
-        return $this->view('The city was successfully created', Response::HTTP_CREATED);
+        return $this->handleView($this->view($city, Response::HTTP_CREATED));
     }
 
-    #[Rest\Put('/api/cities/{id}', name: 'update_city')]
-    public function updateCityAction($id, Request $request)
+
+    //update city record
+    public function updateAction(Request $request)
     {
-        $city = $this->em->getRepository(City::class)->find($id);
-        if($city === null)
+        $cityId = $request->get('cityId');
+        $city = $this->em->getRepository(City::class)->find($cityId);
+
+        if(!$city)
         {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Requested city does not exist');
         }
+
         $data = json_decode($request->getContent(), true);
         $name = $data['name'];
-        $countryId = $data['country']['id'];
+        $countryId = $data['country_id'];
         $country = $this->em->getRepository(Country::class)->find($countryId);
+        if(!$country)
+        {
+            throw new NotFoundHttpException('Requested country does not exist');
+        }
 
         $city->setName($name);
         $city->setCountry($country);
         $this->em->persist($city);
         $this->em->flush();
 
-        return $this->view('City updated successfully', Response::HTTP_OK);
-
+        return $this->handleView($this->view('City successfully updated', Response::HTTP_OK));
     }
 
-    #[Rest\Delete('/api/cities/{id}', name: 'delete_city')]
-    public function deleteCityAction($id)
+    //Delete city record
+    public function deleteAction(Request $request)
     {
-        $city = $this->em->getRepository(City::class)->find($id);
-        if($city === null)
+        $cityId = $request->get('cityId');
+        $city = $this->em->getRepository(Country::class)->find($cityId);
+        if(!$city)
         {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Requested city does not exist');
         }
 
         $this->em->remove($city);
         $this->em->flush();
 
-        return $this->view('Deleted successfully', Response::HTTP_OK);
+        return $this->handleView($this->view('City successfully deleted', Response::HTTP_OK));
     }
 }

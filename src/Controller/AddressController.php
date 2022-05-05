@@ -12,7 +12,6 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use JMS\Serializer\SerializerBuilder as JMS;
 
 class AddressController extends AbstractFOSRestController
 {

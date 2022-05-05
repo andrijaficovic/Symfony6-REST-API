@@ -6,6 +6,7 @@ kernel:
     resource: ../src/Kernel.php
     type: annotation
 
+#COUNTRIES
 countries_list:
     path: /api/countries
     controller: App\Controller\CountryController::indexAction
@@ -37,3 +38,34 @@ country_delete:
     requirements:
         countryId: '\d+'
 
+#CITIES
+cities_list:
+    path: /api/cities
+    controller: App\Controller\CityController::indexAction
+    methods: [GET]
+
+city_show:
+    path: /api/cities/{cityId}
+    controller: App\Controller\CityController::showAction
+    methods: [GET]
+    requirements:
+        cityId: '\d+'
+
+city_create:
+    path: /api/cities
+    controller: App\Controller\CityController::createAction
+    methods: [POST]
+
+city_update:
+    path: /api/cities/{cityId}
+    controller: App\Controller\CityController::updateAction
+    methods: [PUT]
+    requirements:
+        cityId: '\d+'
+
+city_delete:
+    path: /api/cities/{cityId}
+    controller: App\Controller\CityController::deleteAction
+    methods: [DELETE]
+    requirements:
+        cityId: '\d+'

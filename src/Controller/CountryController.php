@@ -3,13 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Country;
-use App\Form\CountryType;
 use Doctrine\ORM\EntityManagerInterface;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class CountryController extends AbstractApiController
+class CountryController extends AbstractFOSRestController
 {
     private $em;
 
@@ -26,7 +27,7 @@ class CountryController extends AbstractApiController
         {
             throw new NotFoundHttpException('Countries not found');
         }
-        return $this->respond($countries, Response::HTTP_OK);
+        return $this->handleView($this->view($countries, Response::HTTP_OK));
     }
 
     //Retrieve country by id
@@ -39,25 +40,38 @@ class CountryController extends AbstractApiController
             throw new NotFoundHttpException('Requested country does not exist');
         }
 
-        return $this->respond($country, Response::HTTP_OK);
+        return $this->handleView($this->view($country, Response::HTTP_OK));
     }
 
     //create country record
     public function createAction(Request $request)
     {
-        $form = $this->buildForm(CountryType::class);
-        $form->handleRequest($request);
+        $data = json_decode($request->getContent(), true);
+        $name = $data['name'];
+        $country = new Country();
 
-        if(!$form->isSubmitted() || !$form->isValid())
+        //check if name is set
+        if(empty($name))
         {
-            return $this->respond($form, Response::HTTP_BAD_REQUEST);
+            throw new BadRequestException('Field name can not be blank');
         }
 
-        $country = $form->getData();
+        //Check if there are same countries
+        $countries = $this->em->getRepository(Country::class)->findAll();
+        foreach ($countries as $c)
+        {
+            if(strtolower($c->getName()) === strtolower($name))
+            {
+                throw new BadRequestException('That country already exists');
+            }
+        }
+
+        //inserting record in database
+        $country->setName($name);
         $this->em->persist($country);
         $this->em->flush();
 
-        return $this->respond($country, Response::HTTP_CREATED);
+        return $this->handleView($this->view($country, Response::HTTP_CREATED));
     }
 
     //update country record
@@ -71,21 +85,13 @@ class CountryController extends AbstractApiController
             throw new NotFoundHttpException('Requested country does not exist');
         }
 
-        $form = $this->buildForm(CountryType::class, $country, [
-            'method' => $request->getMethod()
-        ]);
-        $form->handleRequest($request);
-
-        if(!$form->isSubmitted() || !$form->isValid())
-        {
-            return $this->respond($form, Response::HTTP_BAD_REQUEST);
-        }
-
-        $country = $form->getData();
+        $data = json_decode($request->getContent(), true);
+        $name = $data['name'];
+        $country->setName($name);
         $this->em->persist($country);
         $this->em->flush();
 
-        return $this->respond($country, Response::HTTP_CREATED);
+        return $this->handleView($this->view('Country successfully updated', Response::HTTP_OK));
     }
 
     //Delete country record
@@ -101,6 +107,6 @@ class CountryController extends AbstractApiController
         $this->em->remove($country);
         $this->em->flush();
 
-        return $this->respond('Requested country successfully deleted',Response::HTTP_OK);
+        return $this->handleView($this->view('Country successfully deleted', Response::HTTP_OK));
     }
 }
