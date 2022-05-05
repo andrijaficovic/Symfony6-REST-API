@@ -101,3 +101,37 @@ contact_delete:
     methods: [DELETE]
     requirements:
         contactId: '\d+'
+
+#ADDRESSES
+addresses_list:
+    path: /api/addresses
+    controller: App\Controller\AddressController::indexAction
+    methods: [GET]
+
+address_show:
+    path: /api/addresses/{addressId}
+    controller: App\Controller\AddressController::showAction
+    methods: [GET]
+    requirements:
+        addressId: '\d+'
+
+address_create:
+    path: /api/addresses
+    controller: App\Controller\AddressController::createAction
+    methods: [POST]
+
+address_update:
+    path: /api/addresses/{addressId}
+    controller: App\Controller\AddressController::updateAction
+    methods: [PUT]
+    requirements:
+        addressId: '\d+'
+
+address_delete:
+    path: /api/addresses/{addressId}
+    controller: App\Controller\AddressController::deleteAction
+    methods: [DELETE]
+    requirements:
+        addressId: '\d+'
+
+

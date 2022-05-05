@@ -10,8 +10,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AddressController extends AbstractFOSRestController
 {
@@ -22,130 +24,151 @@ class AddressController extends AbstractFOSRestController
         $this->em = $em;
     }
 
-    #[Rest\Get('/api/addresses', name: 'get_addresses')]
-    public function getAddressesAction()
+    //Retrieve all addresses
+    public function indexAction()
     {
         $addresses = $this->em->getRepository(Address::class)->findAll();
-        if($addresses === null)
+        if(!$addresses)
         {
-            return new View('There are no addresses exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Addresses not found');
         }
-
-        return $this->view($addresses, Response::HTTP_OK);
+        return $this->handleView($this->view($addresses, Response::HTTP_OK));
     }
 
-    private function object_to_array($obj) {
-        if(is_object($obj)) $obj = (array) $this->dismount($obj);
-        if(is_array($obj)) {
-            $new = array();
-            foreach($obj as $key => $val) {
-                $new[$key] = $this->object_to_array($val);
-            }
-        }
-        else $new = $obj;
-        return $new;
-    }
-
-    private function dismount($object) {
-        $reflectionClass = new \ReflectionClass(get_class($object));
-        $array = array();
-        foreach ($reflectionClass->getProperties() as $property) {
-            $property->setAccessible(true);
-            $array[$property->getName()] = $property->getValue($object);
-            $property->setAccessible(false);
-        }
-        return $array;
-    }
-
-    #[Rest\Get('/api/addresses/{id}', name: 'get_address')]
-    public function getAddressAction($id, Request $request)
+    //retrieve address by id
+    public function showAction(Request $request)
     {
-        $address = $this->em->getRepository(Address::class)->find($id);
-        if ($address === null) {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+        $addressId = $request->get('addressId');
+        $address = $this->em->getRepository(Address::class)->find($addressId);
+        if(!$address)
+        {
+            throw new NotFoundHttpException('Requested address does not exist');
         }
-//        $serializer = JMS::create()->build();
-//        $jsonContent = $serializer->serialize($address, 'json');
-//        $data = json_decode($jsonContent);
-//        $array = $this->object_to_array($address);
-//        $postalCode = $array['postalCode'];
-//        dd($array['client']);
-        return $this->view($address, Response::HTTP_OK);
+
+        return $this->handleView($this->view($address, Response::HTTP_OK));
     }
 
-    #[Rest\Post('/api/addresses', name: 'post_address')]
-    public function postAddressAction(Request $request)
+    //create address record
+    public function createAction(Request $request)
     {
         $data = json_decode($request->getContent(), true);
         $street = $data['street'];
         $streetNumber = $data['street_number'];
         $postalCode = $data['postal_code'];
-        $clientId = $data['client']['id'];
-        $cityId = $data['city']['id'];
-        $countryId = $data['country']['id'];
+        $cityId = $data['city_id'];
+        $countryId = $data['country_id'];
+        $clientId = $data['client_id'];
 
+        $city = $this->em->getRepository(City::class)->find($cityId);
+        $country = $this->em->getRepository(Country::class)->find($countryId);
+        $client = $this->em->getRepository(Client::class)->find($clientId);
+
+        if(!$client)
+        {
+            throw new NotFoundHttpException('Requested client does not exist');
+        }
+
+        if(!$city)
+        {
+            throw new NotFoundHttpException('Requested city does not exist');
+        }
+
+        if(!$country)
+        {
+            throw new NotFoundHttpException('Requested country does not exist');
+        }
+
+        //check if data is set
+        if(empty($street) || empty($streetNumber) || empty($postalCode) || empty($cityId) || empty($countryId) || empty($clientId))
+        {
+            throw new BadRequestException('Fields can not be blank');
+        }
+
+        //inserting record in database
         $address = new Address();
-        $client = $this->em->getRepository(Client::class)->find($clientId);
-        $city = $this->em->getRepository(City::class)->find($cityId);
-        $country = $this->em->getRepository(Country::class)->find($countryId);
-
         $address->setStreet($street);
         $address->setStreetNumber($streetNumber);
         $address->setPostalCode($postalCode);
         $address->setCity($city);
         $address->setCountry($country);
         $address->setClient($client);
-
         $this->em->persist($address);
         $this->em->flush();
 
-        return $this->view('The address was successfully created', Response::HTTP_CREATED);
+        return $this->handleView($this->view($address, Response::HTTP_CREATED));
     }
 
-    #[Rest\Put('/api/addresses/{id}', name: 'update_address')]
-    public function updateAddressAction($id, Request $request)
+    //update address record
+    public function updateAction(Request $request)
     {
-        $address = $this->em->getRepository(Address::class)->find($id);
+        $addressId = $request->get('addressId');
+        $address = $this->em->getRepository(Address::class)->find($addressId);
+
+        if(!$address)
+        {
+            throw new NotFoundHttpException('Requested address does not exist');
+        }
 
         $data = json_decode($request->getContent(), true);
         $street = $data['street'];
         $streetNumber = $data['street_number'];
         $postalCode = $data['postal_code'];
-        $clientId = $data['client']['id'];
-        $cityId = $data['city']['id'];
-        $countryId = $data['country']['id'];
+        $cityId = $data['city_id'];
+        $countryId = $data['country_id'];
+        $clientId = $data['client_id'];
 
-        $client = $this->em->getRepository(Client::class)->find($clientId);
         $city = $this->em->getRepository(City::class)->find($cityId);
         $country = $this->em->getRepository(Country::class)->find($countryId);
+        $client = $this->em->getRepository(Client::class)->find($clientId);
 
+        if(!$client)
+        {
+            throw new NotFoundHttpException('Requested client does not exist');
+        }
+
+        if(!$city)
+        {
+            throw new NotFoundHttpException('Requested city does not exist');
+        }
+
+        if(!$country)
+        {
+            throw new NotFoundHttpException('Requested country does not exist');
+        }
+
+        //check if data is set
+        if(empty($street) || empty($streetNumber) || empty($postalCode) || empty($cityId) || empty($countryId) || empty($clientId))
+        {
+            throw new BadRequestException('Fields can not be blank');
+        }
+
+        //inserting record in database
         $address->setStreet($street);
         $address->setStreetNumber($streetNumber);
         $address->setPostalCode($postalCode);
         $address->setCity($city);
         $address->setCountry($country);
         $address->setClient($client);
-
         $this->em->persist($address);
         $this->em->flush();
 
-        return $this->view('The address was successfully updated', Response::HTTP_OK);
+        return $this->handleView($this->view($address, Response::HTTP_CREATED));
     }
 
-    #[Rest\Delete('/api/addresses/{id}', name: 'delete_address')]
-    public function deleteAddressAction($id)
+    //Delete address record
+    public function deleteAction(Request $request)
     {
-        $address = $this->em->getRepository(Address::class)->find($id);
-
-        if($address === null)
+        $addressId = $request->get('addressId');
+        $address = $this->em->getRepository(Address::class)->find($addressId);
+        if(!$address)
         {
-            return new View('The requested result does not exist', Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Requested address does not exist');
         }
 
         $this->em->remove($address);
         $this->em->flush();
 
-        return $this->view('Deleted successfully', Response::HTTP_OK);
+        return $this->handleView($this->view('Address successfully deleted', Response::HTTP_OK));
     }
 
 }
