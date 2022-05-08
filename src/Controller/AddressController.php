@@ -8,8 +8,6 @@ use App\Entity\Client;
 use App\Entity\Country;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +21,7 @@ class AddressController extends AbstractFOSRestController
     {
         $this->em = $em;
     }
+
 
     //Retrieve all addresses
     public function indexAction()
