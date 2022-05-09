@@ -8,6 +8,7 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 
 class RegistrationController extends AbstractFOSRestController
@@ -24,8 +25,10 @@ class RegistrationController extends AbstractFOSRestController
         $this->passwordEncoder = $passwordEncoder;
     }
 
+    //Register new user
     public function register(Request $request)
     {
+        //getting data from post request
         $data = json_decode($request->getContent(), true);
         $email = $data['email'];
         $plainPassword = $data['password'];
@@ -33,10 +36,15 @@ class RegistrationController extends AbstractFOSRestController
         $name = $data['name'];
         $surname = $data['surname'];
 
+        if(empty($email) || empty($plainPassword) || empty($role) || empty($name) || empty($surname))
+        {
+            throw new BadCredentialsException("Fields can not be blank");
+        }
+
         $user = $this->em->getRepository(User::class)->findOneBy([
             'email'=>$email
         ]);
-
+        //check if user exists
         if(!is_null($user))
         {
             return $this->view([
@@ -44,6 +52,7 @@ class RegistrationController extends AbstractFOSRestController
             ], Response::HTTP_CONFLICT);
         }
 
+        //creating user
         $user = new User();
         $user->setEmail($email);
         $user->setPassword(

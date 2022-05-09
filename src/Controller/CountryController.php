@@ -22,7 +22,6 @@ class CountryController extends AbstractFOSRestController
     //Retrieve all countries
     public function indexAction()
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $countries = $this->em->getRepository(Country::class)->findAll();
         if(!$countries)
         {
@@ -34,7 +33,6 @@ class CountryController extends AbstractFOSRestController
     //Retrieve country by id
     public function showAction(Request $request)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $countryId = $request->get('countryId');
         $country = $this->em->getRepository(Country::class)->find($countryId);
         if($country === null)
@@ -48,7 +46,6 @@ class CountryController extends AbstractFOSRestController
     //create country record
     public function createAction(Request $request)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $data = json_decode($request->getContent(), true);
         $name = $data['name'];
         $country = new Country();
@@ -80,7 +77,6 @@ class CountryController extends AbstractFOSRestController
     //update country record
     public function updateAction(Request $request)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $countryId = $request->get('countryId');
         $country = $this->em->getRepository(Country::class)->find($countryId);
 
@@ -101,7 +97,6 @@ class CountryController extends AbstractFOSRestController
     //Delete country record
     public function deleteAction(Request $request)
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $countryId = $request->get('countryId');
         $country = $this->em->getRepository(Country::class)->find($countryId);
         if(!$country)
