@@ -6,8 +6,6 @@ use App\Entity\Client;
 use App\Service\ClientGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -22,8 +20,8 @@ class ClientController extends AbstractFOSRestController
     }
 
     /*
-     * Retrieve all clients, only provided for admin user
-     * You can find all related clients for specific user:
+     * Retrieve all clients, only provided for ADMIN user
+     * USER can find all related clients for specific user:
      * check route /api/user/clients in UserController::indexAction
      * */
     public function indexAction()
@@ -38,8 +36,8 @@ class ClientController extends AbstractFOSRestController
     }
 
     /*
-     * Retrieve client by id, only provided for admin user
-     * You can find specific client:
+     * Retrieve client by id, only provided for ADMIN user
+     * USER can find specific client:
      * check route /api/user/clients/{clientId} in UserController::showAction
      * */
     public function showAction(Request $request)
@@ -56,8 +54,8 @@ class ClientController extends AbstractFOSRestController
     }
 
     /*
-     * Create new client, only provided for admin user
-     * User can create client:
+     * Create new client, only provided for ADMIN user
+     * USER can create client:
      * check route /api/user/clients in UserController::createAction
      * */
     public function createAction(Request $request, ClientGenerator $clientGenerator)
@@ -79,8 +77,8 @@ class ClientController extends AbstractFOSRestController
     }
 
     /*
-     * Update client by id, only provided for admin user
-     * You can update specific client:
+     * Update client by id, only provided for ADMIN user
+     * USER can update specific client:
      * check route /api/user/clients/{clientId} in UserController::updateAction
      * */
     public function updateAction(Request $request, ClientGenerator $clientGenerator)
@@ -106,7 +104,11 @@ class ClientController extends AbstractFOSRestController
         return $this->handleView($this->view($client, Response::HTTP_CREATED));
     }
 
-    //Delete address record
+    /*
+     * Delete client by id, only provided for ADMIN user
+     * USER can delete specific client:
+     * check route /api/user/clients/{clientId} in UserController::deleteAction
+     * */
     public function deleteAction(Request $request)
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
