@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +28,7 @@ class ClientController extends AbstractFOSRestController
     //Retrieve all clients
     public function indexAction()
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $clients = $this->em->getRepository(Client::class)->findAll();
         if(!$clients)
         {
@@ -45,7 +47,14 @@ class ClientController extends AbstractFOSRestController
             throw new NotFoundHttpException('Requested client does not exist');
         }
 
-        return $this->handleView($this->view($client, Response::HTTP_OK));
+        $clientUser = $client->getUser()->getId();
+        $currentUser = $this->getUser()->getId();
+        if($clientUser === $currentUser)
+        {
+            return $this->handleView($this->view($client, Response::HTTP_OK));
+        }else{
+            throw new AccessDeniedException('Access denied', Response::HTTP_CONFLICT);
+        }
     }
 
     //create client record
@@ -56,7 +65,7 @@ class ClientController extends AbstractFOSRestController
         $companyRegistrationNumber = $data['company_registration_number'];
         $tin = $data['tin'];
         $website = $data['website'];
-
+        $user = $this->getUser();
         //check if data is set
         //website can be null
         if(empty($name) || empty($companyRegistrationNumber) || empty($tin))
@@ -70,6 +79,7 @@ class ClientController extends AbstractFOSRestController
         $client->setCompanyRegistrationNumber($companyRegistrationNumber);
         $client->setTin($tin);
         $client->setWebsite($website);
+        $client->setUser($user);
         $this->em->persist($client);
         $this->em->flush();
 
@@ -81,16 +91,25 @@ class ClientController extends AbstractFOSRestController
     {
         $clientId = $request->get('clientId');
         $client = $this->em->getRepository(Client::class)->find($clientId);
+
+        $clientUser = $client->getUser()->getId();
+        $currentUser = $this->getUser()->getId();
+        if(!($clientUser === $currentUser))
+        {
+            throw new AccessDeniedException('Access denied', Response::HTTP_CONFLICT);
+        }
+
         if(!$client)
         {
             throw new NotFoundHttpException('Requested client does not exist');
         }
+
         $data = json_decode($request->getContent(), true);
         $name = $data['name'];
         $companyRegistrationNumber = $data['company_registration_number'];
         $tin = $data['tin'];
         $website = $data['website'];
-
+        $user = $this->getUser();
         //check if data is set
         //website can be null
         if(empty($name) || empty($companyRegistrationNumber) || empty($tin))
@@ -103,6 +122,7 @@ class ClientController extends AbstractFOSRestController
         $client->setCompanyRegistrationNumber($companyRegistrationNumber);
         $client->setTin($tin);
         $client->setWebsite($website);
+        $client->setUser($user);
         $this->em->persist($client);
         $this->em->flush();
 
@@ -117,6 +137,12 @@ class ClientController extends AbstractFOSRestController
         if(!$client)
         {
             throw new NotFoundHttpException('Requested client does not exist');
+        }
+        $clientUser = $client->getUser()->getId();
+        $currentUser = $this->getUser()->getId();
+        if(!($clientUser === $currentUser))
+        {
+            throw new AccessDeniedException('Access denied', Response::HTTP_CONFLICT);
         }
 
         $this->em->remove($client);

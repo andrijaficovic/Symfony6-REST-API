@@ -23,6 +23,7 @@ class CityController extends AbstractFOSRestController
     //Retrieve all cities
     public function indexAction()
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $cities = $this->em->getRepository(City::class)->findAll();
         if(!$cities)
         {
@@ -34,6 +35,7 @@ class CityController extends AbstractFOSRestController
     //retrieve city by id
     public function showAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $cityId = $request->get('cityId');
         $city = $this->em->getRepository(City::class)->find($cityId);
         if(!$city)
@@ -47,6 +49,7 @@ class CityController extends AbstractFOSRestController
     //create city record
     public function createAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $data = json_decode($request->getContent(), true);
         $name = $data['name'];
         $countryId = $data['country_id'];
@@ -85,6 +88,7 @@ class CityController extends AbstractFOSRestController
     //update city record
     public function updateAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $cityId = $request->get('cityId');
         $city = $this->em->getRepository(City::class)->find($cityId);
 
@@ -113,6 +117,7 @@ class CityController extends AbstractFOSRestController
     //Delete city record
     public function deleteAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $cityId = $request->get('cityId');
         $city = $this->em->getRepository(Country::class)->find($cityId);
         if(!$city)

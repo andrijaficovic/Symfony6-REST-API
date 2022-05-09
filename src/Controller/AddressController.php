@@ -26,6 +26,7 @@ class AddressController extends AbstractFOSRestController
     //Retrieve all addresses
     public function indexAction()
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $addresses = $this->em->getRepository(Address::class)->findAll();
         if(!$addresses)
         {
@@ -37,6 +38,7 @@ class AddressController extends AbstractFOSRestController
     //retrieve address by id
     public function showAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $addressId = $request->get('addressId');
         $address = $this->em->getRepository(Address::class)->find($addressId);
         if(!$address)
@@ -50,6 +52,7 @@ class AddressController extends AbstractFOSRestController
     //create address record
     public function createAction(Request $request)
     {
+        $this->denyAccessUnlessGranted(['ROLE_USER','ROLE_ADMIN']);
         $data = json_decode($request->getContent(), true);
         $street = $data['street'];
         $streetNumber = $data['street_number'];

@@ -10,13 +10,17 @@ kernel:
 api_login_check:
     path: /api/login_check
 
-api_login:
-    path: /api/login
-    controller: App\Controller\LoginController::index
-
 api_register:
     path: /api/register
     controller: App\Controller\RegistrationController::register
+
+user_clients_list:
+    path: /api/user/{userId}/clients
+    controller: App\Controller\UserController::indexAction
+
+user_client_show:
+    path: /api/user/{userId}/clients/{clientId}
+    controller: App\Controller\UserController::showAction
 
 #COUNTRIES
 countries_list:

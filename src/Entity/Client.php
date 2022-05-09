@@ -33,6 +33,11 @@ class Client
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Address::class, orphanRemoval: true)]
     private $addresses;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'clients')]
+    private $user;
+
+
+
     public function __construct()
     {
         $this->contacts = new ArrayCollection();
@@ -152,5 +157,16 @@ class Client
         return $this;
     }
 
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
 
 }

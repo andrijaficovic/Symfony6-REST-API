@@ -104,9 +104,6 @@
             "config/packages/fos_rest.yaml"
         ]
     },
-    "gesdinet/jwt-refresh-token-bundle": {
-        "version": "v1.1.1"
-    },
     "jms/metadata": {
         "version": "2.6.1"
     },
