@@ -23,17 +23,9 @@ class AppFixtures extends Fixture
             $country->setName('Country name ' . $i);
             $manager->persist($country);
         }
-        $user = new User();
-        $user->setEmail('toto@gmail.com');
-        $plaintextPassword = 'string2222';
-        // hash the password (based on the security.yaml config for the $user class)
-        $hashedPassword = password_hash(
-            $plaintextPassword,
-            $user
-        );
-        $user->setPassword($hashedPassword);
+        $client = new Client();
+
         // and save user in db
-        $manager->persist($user);
         $manager->flush();
     }
 }

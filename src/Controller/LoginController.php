@@ -2,17 +2,24 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
-class LoginController extends AbstractController
+class LoginController extends AbstractFOSRestController
 {
-    #[Route('/login', name: 'app_login')]
-    public function index(): Response
+    public function index(Request $request)
     {
-        return $this->render('login/index.html.twig', [
-            'controller_name' => 'LoginController',
-        ]);
+        $user = $this->getUser();
+        if(null === $user)
+        {
+            return $this->handleView($this->view('missing credentials'),Response::HTTP_UNAUTHORIZED);
+        }
+
+        $token = $request->get('lexik_jwt_authentication.encoder');
+        return $this->handleView($this->view([
+            'email'=>$user->getUserIdentifier(),
+            'token'=>$token
+        ]));
     }
 }
