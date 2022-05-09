@@ -13,14 +13,14 @@ api_login_check:
 api_register:
     path: /api/register
     controller: App\Controller\RegistrationController::register
+    methods: [POST]
 
 user_clients_list:
     path: /api/user/{userId}/clients
     controller: App\Controller\UserController::indexAction
-
-user_client_show:
-    path: /api/user/{userId}/clients/{clientId}
-    controller: App\Controller\UserController::showAction
+    methods: [GET]
+    requirements:
+        userId: '\d+'
 
 #COUNTRIES
 countries_list:
