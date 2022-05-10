@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -35,6 +36,11 @@ class RegistrationController extends AbstractFOSRestController
         $role = $data['role'];
         $name = $data['name'];
         $surname = $data['surname'];
+
+        //validate email
+        if(!(filter_var($email, FILTER_VALIDATE_EMAIL))) {
+            throw new BadRequestException('Email not valid');
+        }
 
         if(empty($email) || empty($plainPassword) || empty($role) || empty($name) || empty($surname))
         {

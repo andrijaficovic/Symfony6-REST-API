@@ -1,0 +1,26 @@
+App\Entity\Country:
+  properties:
+    name:
+      - NotBlank: ~
+
+App\Entity\City:
+  properties:
+    name:
+      - NotBlank: ~
+
+App\Entity\User:
+  properties:
+    email:
+      - Email: ~
+    roles:
+      - Choice: [admin, user]
+
+App\Controller\RegistrationController:
+  properties:
+    name:
+      - Length:
+          min: 2
+          max: 50
+          minMessage: 'Your first name must be at least {{ limit }} characters long'
+          maxMessage: 'Your first name cannot be longer than {{ limit }} characters'
+

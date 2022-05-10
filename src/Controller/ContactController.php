@@ -67,6 +67,11 @@ class ContactController extends AbstractFOSRestController
             throw new BadRequestException('Fields can not be blank');
         }
 
+        //validate email
+        if(!(filter_var($email, FILTER_VALIDATE_EMAIL))) {
+            throw new BadRequestException('Email not valid');
+        }
+
         //inserting record in database
         $contact = new Contact();
         $contact->setName($name);
@@ -102,6 +107,11 @@ class ContactController extends AbstractFOSRestController
         if(!$client)
         {
             throw new NotFoundHttpException('Requested client does not exist');
+        }
+
+        //validate email
+        if(!(filter_var($email, FILTER_VALIDATE_EMAIL))) {
+            throw new BadRequestException('Email not valid');
         }
 
         //check if data is set
